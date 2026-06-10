@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import { Table, MenuItem, Order, Bill, TableStatus, OrderItem } from "./src/types";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
@@ -680,6 +679,7 @@ app.get("/api/admin/bills", (req, res) => {
 // ==========================================
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
