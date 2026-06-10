@@ -8,9 +8,23 @@ import { WebSocketServer } from "ws";
 const app = express();
 const PORT = 3000;
 const server = createServer(app);
-const wss = new WebSocketServer({ server });
+
+// Conditionally initialize WebSocket for non-serverless environments (like local/Docker)
+let wss: WebSocketServer | null = null;
+if (process.env.VERCEL !== "1") {
+  try {
+    wss = new WebSocketServer({ server });
+    wss.on("connection", (ws) => {
+      console.log("WebSocket client connected");
+      ws.on("error", console.error);
+    });
+  } catch (err) {
+    console.warn("Could not start WebSocket server (non-fatal, proceeding):", err);
+  }
+}
 
 function broadcastOrderStatus(order: Order) {
+  if (!wss) return;
   const payload = JSON.stringify({
     type: "order_status_update",
     orderId: order.id,
@@ -25,12 +39,6 @@ function broadcastOrderStatus(order: Order) {
     }
   });
 }
-
-// WebSocket connection listener
-wss.on("connection", (ws) => {
-  console.log("WebSocket client connected");
-  ws.on("error", console.error);
-});
 
 app.use(express.json());
 
@@ -687,9 +695,15 @@ async function startServer() {
     });
   }
 
-  server.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+  if (process.env.VERCEL !== "1") {
+    server.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  }
 }
 
-startServer();
+if (process.env.VERCEL !== "1") {
+  startServer();
+}
+
+export default app;
