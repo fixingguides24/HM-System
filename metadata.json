@@ -1,0 +1,6 @@
+{
+  "name": "QR Restaurant Web Application",
+  "description": "Interactive full-stack QR-based restaurant ordering web app and admin dashboard with real-time order tracking, persistent table cart append logic, and live billing status updates.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
